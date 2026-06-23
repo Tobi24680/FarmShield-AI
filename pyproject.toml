@@ -1,0 +1,21 @@
+[project]
+name = "farmshield-ai"
+version = "1.0.0"
+description = "FarmShield AI – Wildlife Intrusion Detection & Alert System for Smart Agriculture"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "gradio>=4.44.0",
+    "onnxruntime>=1.18.0",
+    "opencv-python-headless>=4.9.0",
+    "pillow>=10.0.0",
+    "numpy>=1.26.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

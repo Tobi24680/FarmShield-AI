@@ -1,0 +1,45 @@
+# ── Python ───────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ──────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Model files (large – use Git LFS on HF) ──
+# models/best.onnx   ← uncomment to exclude from git
+
+# ── Alert outputs (runtime generated) ────────
+alerts/screenshots/*.jpg
+alerts/screenshots/*.png
+alerts/alert_log.csv
+
+# ── IDE / editor ──────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Jupyter ───────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Build / dist ─────────────────────────────
+dist/
+build/
+*.egg-info/
+
+# ── Env files ─────────────────────────────────
+.env
+.env.local
+
+# ── Logs ─────────────────────────────────────
+*.log
