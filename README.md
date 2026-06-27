@@ -91,17 +91,6 @@ Then open `http://localhost:7860` in your browser.
 
 ---
 
-## 🤗 Deploy to HuggingFace Spaces
-
-1. Create a new **Gradio** Space on [huggingface.co/spaces](https://huggingface.co/spaces).
-2. Upload all files **except** the `models/` folder.
-3. Go to **Files → Upload file** and upload `models/best.onnx` separately (large file).
-4. The Space will auto-install `requirements.txt` and launch `main.py`.
-
-> **Tip:** If your model is >100 MB, use [HuggingFace Git LFS](https://huggingface.co/docs/hub/repositories-getting-started#git-lfs) to push it.
-
----
-
 ## 🧠 Model Details
 
 | Property | Value |
@@ -149,7 +138,7 @@ Then open `http://localhost:7860` in your browser.
 
 ## 👩‍💻 Author
 
-Built by **Srimathi** as a portfolio / LinkedIn showcase project.  
+Built by **SHREERAM M K** as a portfolio  project.  
 Demonstrates end-to-end AI deployment: model training → ONNX export → inference pipeline → production UI.
 
 ---
