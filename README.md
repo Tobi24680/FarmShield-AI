@@ -15,14 +15,17 @@
 
 | Feature | Details |
 |---|---|
-| 🎯 Animal Detection | Bear · Boar · Elephant |
+| 🎯 Animal Detection | Bear · Boar · Elephant (3-class YOLOv8) |
 | ⚡ Inference Engine | ONNX Runtime (CPU, no GPU required) |
-| 📷 Image Sources | File upload + live webcam capture |
-| 🚨 Alert System | Timestamped alert message in UI |
-| 📸 Auto Screenshot | Saved to `alerts/screenshots/` |
+| 📷 Input Methods | Image upload · Live webcam · **WebRTC streaming** |
+| 🚨 Alert System | Popup notifications + Gradio warnings |
+| 🎤 Tamil Voice Alerts | Natural speech synthesis with gTTS + pygame |
+| 📸 Auto Screenshot | Saved to `alerts/screenshots/` with timestamp |
 | 📋 CSV Log | All detections logged to `alerts/alert_log.csv` |
-| 🎨 Premium UI | Gradio Blocks with dark agri-green theme |
+| 🎨 Premium UI | Gradio Blocks with dark agri-green glassmorphism theme |
+| ⚡ Ultra-Low Latency | WebRTC P2P streaming (~100-200ms) |
 | 🤗 HuggingFace Ready | Deploys to Spaces with zero changes |
+| 🎪 Multi-Modal Alerts | Popup + Banner + Alarm sound + Tamil voice |
 
 ---
 
@@ -63,17 +66,25 @@ cd FarmShield-AI
 
 ### 2. Create environment & install dependencies
 
-**Using `uv` (recommended):**
+**Using `uv` (recommended - fastest):**
+```bash
+pip install uv
+uv sync
+```
+
+**Or manually with uv pip:**
 ```bash
 pip install uv
 uv venv
+source .venv/bin/activate      # Linux/macOS
+.venv\Scripts\activate         # Windows
 uv pip install -r requirements.txt
 ```
 
 **Using plain pip:**
 ```bash
 python -m venv .venv
-.venv\Scripts\activate      # Windows
+.venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 ```
 
@@ -88,6 +99,54 @@ models/best.onnx
 python main.py
 ```
 Then open `http://localhost:7860` in your browser.
+
+---
+
+## 🎯 Input Methods
+
+### 1. 📤 Upload Image
+Upload a JPG/PNG image of your farm field for instant detection.
+
+### 2. 📹 Live Webcam
+Stream directly from your webcam with real-time bounding boxes and alerts.
+
+### 3. ⚡ WebRTC Stream (Ultra-Low Latency)
+Peer-to-peer video streaming with minimal latency (~100-200ms):
+- **Faster than HTTP** – P2P connection
+- **Real-time detection** – Frame-by-frame analysis
+- **Adjustable threshold** – Confidence slider
+- **Perfect for 24/7 monitoring** – Optimal for farm surveillance
+
+---
+
+## 🎤 Tamil Voice Alerts
+
+When an animal is detected, FarmShield AI generates **natural Tamil speech**:
+
+- **Automatic speech synthesis** using Google Text-to-Speech (gTTS)
+- **Non-blocking playback** – doesn't freeze the UI
+- **Multi-lingual ready** – easily extensible to other languages
+- **Example alert:**
+  ```
+  எச்சரிக்கை! உங்கள் வயலில் யானை, கரடி கண்டறியப்பட்டுள்ளது। 
+  தயவுசெய்து வயலுக்குள் செல்ல வேண்டாம். பாதுகாப்பாக இருங்கள்.
+  
+  Translation: "Alert! Elephant and bear detected in your field. 
+  Please don't enter the field. Stay safe."
+  ```
+
+---
+
+## 🚨 Multi-Layer Alert System
+
+When an animal is detected, **all alert systems activate simultaneously:**
+
+1. **🎤 Tamil Voice** – Natural speech via gTTS + pygame
+2. **📢 Popup Notification** – Gradio warning popup on screen
+3. **🔊 Alarm Sound** – Web Audio API siren (3 beeps)
+4. **🚨 Banner** – Red alert banner at top of page
+5. **📸 Screenshot** – Auto-saved with timestamp
+6. **📋 CSV Log** – Logged for records & analytics
 
 ---
 
@@ -112,6 +171,48 @@ Then open `http://localhost:7860` in your browser.
 
 ---
 
+## 📊 Alert Logging
+
+### CSV Log Format
+All detections are automatically saved to `alerts/alert_log.csv`:
+
+```csv
+Timestamp,Animals,Confidences,Screenshot
+2026-07-04 14:30:15,Elephant,95%,20260704_143015.jpg
+2026-07-04 14:35:42,Bear,87%,20260704_143542.jpg
+2026-07-04 15:10:08,Boar,92%,20260704_151008.jpg
+```
+
+### Screenshot Directory
+All annotated images are saved with bounding boxes to `alerts/screenshots/`
+
+---
+
+## ❓ Troubleshooting
+
+### Issue: WebRTC not working
+- Ensure `fastrtc` is installed: `pip install fastrtc>=0.0.20`
+- Check browser compatibility (Chrome/Edge recommended)
+- Ensure your camera permissions are granted
+
+### Issue: Tamil voice not playing
+- Verify `gtts` and `pygame` are installed
+- Check internet connection (gTTS requires it)
+- Ensure speakers are not muted
+- For Linux: install `pulseaudio` or `alsa`
+
+### Issue: ONNX model not found
+- Place your trained model at `models/best.onnx`
+- Verify the path in `app/config.py`
+- Check file permissions
+
+### Issue: High CPU usage
+- Reduce inference frequency in `app/config.py`
+- Increase `CONF_THRESHOLD` to reduce detections
+- Use OpenCV headless version (already in requirements)
+
+---
+
 ## 📸 Alert Example
 
 ```
@@ -127,19 +228,66 @@ Then open `http://localhost:7860` in your browser.
 
 ## 🛠 Tech Stack
 
+### Core AI & Detection
 - **Python 3.10+**
-- **Gradio** – interactive web UI
-- **ONNX Runtime** – CPU inference
-- **OpenCV** – image processing & bounding boxes
-- **Pillow** – PIL image handling
-- **NumPy** – array operations
+- **YOLOv8 (Ultralytics)** – Object detection
+- **ONNX Runtime** – CPU-optimized inference
+- **NumPy** – Array operations
+- **OpenCV** – Image processing & bounding boxes
+
+### Web UI & Streaming
+- **Gradio 4.44+** – Interactive web interface
+- **Pillow** – Image handling
+- **FastRTC** – WebRTC peer-to-peer streaming
+- **Gradio Blocks** – Custom component layout
+
+### Audio & Alerts
+- **gTTS** – Google Text-to-Speech (Tamil)
+- **pygame** – Audio playback
+- **Web Audio API** – Browser alarm sounds
+
+### Package Management
+- **uv** – Fast Python package installer (optional but recommended)
 
 ---
 
-## 👩‍💻 Author
+## 📦 Dependencies
 
-Built by **SHREERAM M K** as a portfolio  project.  
-Demonstrates end-to-end AI deployment: model training → ONNX export → inference pipeline → production UI.
+All dependencies are in `pyproject.toml`:
+
+```toml
+dependencies = [
+    "gradio>=4.44.0",
+    "onnxruntime>=1.18.0",
+    "opencv-python-headless>=4.9.0",
+    "numpy>=1.26.0",
+    "ultralytics>=8.0.0",
+    "fastrtc>=0.0.20",      # WebRTC streaming
+    "gtts>=2.4.0",          # Tamil voice alerts
+    "pygame>=2.5.0",        # Audio playback
+]
+```
+
+---
+
+## 👩‍💻 Author & Contact
+
+Built by **SHREERAM M K**  
+📧 **Email:** sumathidevan2006@gmail.com  
+📱 **Phone:** +91 9087418802  
+🔗 **GitHub:** [github.com/Tobi24680](https://github.com/Tobi24680)  
+🎓 **Institution:** Annamalai University, CSE - AI & ML
+
+---
+
+## 🌟 Project Vision
+
+**FarmShield AI** aims to:
+- ✅ Bring affordable AI-based wildlife monitoring to farms
+- ✅ Reduce crop losses from wildlife intrusions
+- ✅ Improve farmer safety through instant alerts
+- ✅ Build a scalable smart agriculture security platform
+- ✅ Support local languages (Tamil, Telugu, etc.) for accessibility
 
 ---
 

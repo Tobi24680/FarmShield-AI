@@ -11,6 +11,9 @@ dependencies = [
     "opencv-python-headless>=4.9.0",
     "numpy>=1.26.0",
     "ultralytics>=8.0.0",
+    "fastrtc>=0.0.20",
+    "gtts>=2.4.0",
+    "pygame>=2.5.0",
 ]
 
 [tool.hatch.build.targets.wheel]
