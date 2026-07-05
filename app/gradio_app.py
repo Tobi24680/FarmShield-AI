@@ -1,5 +1,5 @@
 import gradio as gr
-from app.onnx_predict import predict_image, predict_webcam_frame, predict_webrtc_stream
+from app.onnx_predict import predict_image, predict_webrtc_stream
 from fastrtc import WebRTC
 from app.config import CONF_THRESHOLD
 
@@ -758,9 +758,7 @@ label, .label-wrap { color: var(--muted) !important; }
 .my-column {display: flex !important; flex-direction: column; justify-content: center !important; align-items: center !important; text-align: center;}
 """
 
-# ═══════════════════════════════════════════════════════════════════
 #  HTML TEMPLATES
-# ═══════════════════════════════════════════════════════════════════
 
 DANGER_BANNER_HTML = """
 <div id="danger-banner">
@@ -773,22 +771,19 @@ HERO_HTML = """
     <h1>FarmShield AI</h1>
     <div class="hero-tagline">Your Farm's 24 / 7 AI Guardian</div>
     <p class="subtitle">
-        AI-powered wildlife intrusion detection for modern agriculture.
+        AI-powered wildlife monitoring system for safest farming.
         Real-time monitoring with instant alerts to protect your crops from
         <b>Elephants</b>, <b>Bears</b>, and <b>Wild Boars</b>.
     </p>
 
     <div class="hero-slogan-row">
         <span class="hero-slogan">⚡ Real-Time Detection</span>
-        <span class="hero-slogan">🎤 Tamil Voice Alerts</span>
         <span class="hero-slogan">🔊 Smart Alarm System</span>
-        <span class="hero-slogan">🛡️ Crop Protection AI</span>
     </div>
 
     <div class="badge-row">
         <span class="fs-badge live">System Active</span>
-        <span class="fs-badge">YOLOv8 ONNX</span>
-        <span class="fs-badge">3-Class Detector</span>
+        <span class="fs-badge">YOLOv26 </span>
     </div>
 </div>
 """
@@ -806,7 +801,7 @@ HOW_IT_WORKS_HTML = """
         <div class="hiw-icon">🧠</div>
         <div class="hiw-content">
             <b>2. AI Analysis</b>
-            <p>FarmShield's YOLOv8 model analyzes every frame in milliseconds using ONNX Runtime.</p>
+            <p>FarmShield's YOLOv26 model analyzes every frame in milliseconds using ONNX Runtime.</p>
         </div>
     </div>
     <div class="hiw-step">
@@ -820,7 +815,7 @@ HOW_IT_WORKS_HTML = """
         <div class="hiw-icon">🔊</div>
         <div class="hiw-content">
             <b>4. Multi-Layer Alert</b>
-            <p>On detection: a danger banner, popup notification, alarm sound, and Tamil voice warning all fire together instantly.</p>
+            <p>On detection: a popup notification, alarm sound, and Tamil voice warning all fire together instantly.</p>
         </div>
     </div>
     <div class="hiw-step">
@@ -838,7 +833,6 @@ CREATOR_HTML = """
     <h3>👨‍💻 Creator Profile</h3>
     <p>
         <b>Project:</b> FarmShield AI — Your Farm's 24/7 AI Guardian<br>
-        <b>Type:</b> End-to-End AI Application · Computer Vision · Smart Agriculture
     </p>
 
     <div class="creator-grid">
@@ -864,7 +858,7 @@ CREATOR_HTML = """
         </div>
         <div class="creator-mini">
             <b>🚀 Focus</b><br>
-            <span>AI/ML · Computer Vision · Full-Stack</span>
+            <span>AI Integration · Computer Vision · Security</span>
         </div>
     </div>
 
@@ -875,12 +869,10 @@ CREATOR_HTML = """
     </p>
 
     <div class="tech-strip">
-        <span class="tech-badge">🧠 YOLOv8</span>
+        <span class="tech-badge">🧠 YOLOv26</span>
         <span class="tech-badge">⚡ ONNX Runtime</span>
         <span class="tech-badge">🎨 Gradio</span>
-        <span class="tech-badge">📷 OpenCV</span>
         <span class="tech-badge">🐍 Python</span>
-        <span class="tech-badge">🔢 NumPy</span>
     </div>
 </div>
 """
@@ -904,21 +896,6 @@ STATS_HTML = """
         <div class="key">Animal Classes</div>
     </div>
     <div class="stat-item">
-        <span class="emoji">🐘</span>
-        <div class="val">Elephant</div>
-        <div class="key">Class 1</div>
-    </div>
-    <div class="stat-item">
-        <span class="emoji">🐻</span>
-        <div class="val">Bear</div>
-        <div class="key">Class 2</div>
-    </div>
-    <div class="stat-item">
-        <span class="emoji">🐗</span>
-        <div class="val">Boar</div>
-        <div class="key">Class 3</div>
-    </div>
-    <div class="stat-item">
         <span class="emoji">⚡</span>
         <div class="val">ONNX</div>
         <div class="key">Engine</div>
@@ -940,7 +917,7 @@ def build_app() -> gr.Blocks:
         gr.HTML(HERO_HTML)
 
         with gr.Tabs():
-            # ━━━━━━━━━ TAB 1: Detection Dashboard ━━━━━━━━━
+            
             with gr.Tab("🎯 Detection Dashboard"):
                 gr.HTML(STATS_HTML)
                 with gr.Tabs():
@@ -996,10 +973,10 @@ def build_app() -> gr.Blocks:
                                 gr.HTML('<div class="section-label">🧠 How YOLO Detects Animals</div>')
                                 gr.HTML('''
                                 <div style="margin-bottom: 15px; color: var(--text); font-size: 0.95rem; line-height: 1.6;">
-                                    This live stream is powered by the <b>YOLO (You Only Look Once)</b> AI model. It processes your camera feed frame-by-frame in real-time, instantly drawing bounding boxes around recognized wildlife.
+                                    <b>📹 FarmShield AI in Action:</b> Watch this real-world demonstration showing how the system instantly detects wildlife and triggers alerts.
                                 </div>
-                                <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color);">
-                                    <iframe width="100%" height="250" src="https://www.youtube.com/embed/wuZtUMEiKWY?autoplay=0&mute=1" title="YOLO Object Detection" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color); background: #000;">
+                                    <iframe width="100%" height="380" src="https://www.youtube.com/embed/-PqtzxrDXPI?autoplay=0&mute=0" title="FarmShield AI Action" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                 </div>
                                 ''')
 
@@ -1014,12 +991,8 @@ def build_app() -> gr.Blocks:
                             elem_id="alert-box",
                             interactive=False,
                         )
-                        audio_player = gr.Audio(
-                            autoplay=True,
-                            visible=False,
-                        )
 
-            # ━━━━━━━━━ TAB 2: About ━━━━━━━━━
+            
             with gr.Tab("ℹ️ How It Works"):
                 gr.HTML(HOW_IT_WORKS_HTML)
                 gr.Markdown(
@@ -1027,35 +1000,27 @@ def build_app() -> gr.Blocks:
                     "and annotated screenshots are saved in `alerts/screenshots/`."
                 )
 
-            # ━━━━━━━━━ TAB 3: Contact ━━━━━━━━━
+           
             with gr.Tab("📞 Contact & About"):
                 gr.HTML(CREATOR_HTML)
 
         # ── Footer ──
         gr.HTML(FOOTER_HTML)
 
-        # ━━━━━━━━━ EVENT WIRING ━━━━━━━━━
 
         # Image upload → detect button
         detect_btn.click(
             fn=predict_image,
             inputs=[image_input],
-            outputs=[image_output, alert_output, audio_player],
+            outputs=[image_output, alert_output],
             api_name="detect",
-        )
-
-        # Image upload → auto-detect on change
-        image_input.change(
-            fn=predict_image,
-            inputs=[image_input],
-            outputs=[image_output, alert_output, audio_player],
         )
 
         # WebRTC → real-time ultra-low latency detection
         webcam_input.stream(
             fn=predict_webrtc_stream,
             inputs=[webcam_input, conf_threshold_webrtc],
-            outputs=[webcam_input, alert_output, audio_player],
+            outputs=[webcam_input, alert_output],
             time_limit=10
         )
 

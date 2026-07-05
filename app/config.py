@@ -26,5 +26,4 @@ CLASS_COLORS = {
     2: (255, 140,   0),  # Elephant – vivid orange
 }
 
-# ── Alert Cooldown ──────────────────────────────────────
-ALERT_COOLDOWN_SECONDS = 6   # Min seconds between alerts during live stream
+ALERT_COOLDOWN_SECONDS = 6   

@@ -1,7 +1,6 @@
 import cv2
 import csv
 import time
-from pathlib import Path
 from datetime import datetime
 
 from app.config import (
@@ -14,12 +13,10 @@ from app.config import (
 ALERTS_DIR.mkdir(exist_ok=True)
 SCREENSHOTS_DIR.mkdir(exist_ok=True)
 
-# ── Cooldown tracker ──────────────────────────────────
 _last_alert_time: float = 0.0
 
 
 def _can_alert() -> bool:
-    """Return True if enough time has elapsed since the last alert."""
     global _last_alert_time
     now = time.time()
     if now - _last_alert_time >= ALERT_COOLDOWN_SECONDS:
@@ -39,17 +36,7 @@ def _write_csv_row(timestamp_str: str, animals: str, filename: str, confidences:
 
 
 def save_alert(image, detected_animals, confidences=None):
-    """Save alert screenshot + CSV log and return a formatted alert string.
-
-    Parameters
-    ----------
-    image : np.ndarray
-        Annotated BGR image from YOLO.
-    detected_animals : list[str]
-        List of class names detected.
-    confidences : list[float] | None
-        Corresponding confidence values (0-1).
-    """
+    
     if not detected_animals:
         return "✅ No Wildlife Detected\n━━━━━━━━━━━━━━━━━━━━━━━━━━\nYour farm area appears safe.\nNo animals (Bear, Boar, Elephant) were found in this image."
 
@@ -82,11 +69,7 @@ def save_alert(image, detected_animals, confidences=None):
 
 
 def save_alert_live(image, detected_animals, confidences=None):
-    """Same as save_alert but respects the cooldown timer.
-
-    Returns the alert string if an alert was fired, or a short status
-    string if the cooldown hasn't expired yet.
-    """
+    
     if not detected_animals:
         return (
             "🟢 MONITORING — No wildlife detected\n"
@@ -100,5 +83,4 @@ def save_alert_live(image, detected_animals, confidences=None):
             "Alert cooldown active. Monitoring continues..."
         )
 
-    # Full alert with save
     return save_alert(image, detected_animals, confidences)
