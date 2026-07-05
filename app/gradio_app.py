@@ -756,6 +756,7 @@ label, .label-wrap { color: var(--muted) !important; }
 /* ── WebRTC specific ───────────────────────────────────── */
 .my-group {max-width: 900px !important; margin: 0 auto !important;}
 .my-column {display: flex !important; flex-direction: column; justify-content: center !important; align-items: center !important; text-align: center;}
+#hidden-audio { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; z-index: -1; }
 """
 
 #  HTML TEMPLATES
@@ -991,6 +992,7 @@ def build_app() -> gr.Blocks:
                             elem_id="alert-box",
                             interactive=False,
                         )
+                        audio_output = gr.Audio(label="Alert Audio", autoplay=True, elem_id="hidden-audio")
 
             
             with gr.Tab("ℹ️ How It Works"):
@@ -1012,7 +1014,7 @@ def build_app() -> gr.Blocks:
         detect_btn.click(
             fn=predict_image,
             inputs=[image_input],
-            outputs=[image_output, alert_output],
+            outputs=[image_output, alert_output, audio_output],
             api_name="detect",
         )
 
@@ -1020,7 +1022,7 @@ def build_app() -> gr.Blocks:
         webcam_input.stream(
             fn=predict_webrtc_stream,
             inputs=[webcam_input, conf_threshold_webrtc],
-            outputs=[webcam_input, alert_output],
+            outputs=[webcam_input, alert_output, audio_output],
             time_limit=10
         )
 
