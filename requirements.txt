@@ -5,3 +5,5 @@ numpy>=1.26.0
 ultralytics>=8.0.0
 fastrtc>=0.0.20
 gtts>=2.4.0
+pygame>=2.1.0
+pillow>=10.0.0
