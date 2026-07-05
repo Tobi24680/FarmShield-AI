@@ -230,7 +230,7 @@ All annotated images are saved with bounding boxes to `alerts/screenshots/`
 
 ### Core AI & Detection
 - **Python 3.10+**
-- **YOLOv8 (Ultralytics)** – Object detection
+- **YOLOv26 (Ultralytics)** – Object detection
 - **ONNX Runtime** – CPU-optimized inference
 - **NumPy** – Array operations
 - **OpenCV** – Image processing & bounding boxes
