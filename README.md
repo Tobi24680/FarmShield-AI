@@ -1,7 +1,7 @@
 # FarmShield AI 🌾 – Wildlife Intrusion Detection & Alert System
 
 [![HuggingFace Spaces](https://img.shields.io/badge/🤗-HuggingFace%20Space-blue)](https://huggingface.co/spaces)
-[![Python](https://img.shields.io/badge/Python-3.10+-green)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX-Runtime-orange)](https://onnxruntime.ai)
 [![Gradio](https://img.shields.io/badge/Gradio-UI-blueviolet)](https://gradio.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -17,13 +17,13 @@
 |---|---|
 | 🎯 Animal Detection | Bear · Boar · Elephant (3-class YOLOv8) |
 | ⚡ Inference Engine | ONNX Runtime (CPU, no GPU required) |
-| 📷 Input Methods | Image upload · Live webcam · **WebRTC streaming** |
+| 📷 Input Methods | Image upload · Live webcam |
 | 🚨 Alert System | Popup notifications + Gradio warnings |
 | 🎤 Tamil Voice Alerts | Natural speech synthesis with gTTS + pygame |
 | 📸 Auto Screenshot | Saved to `alerts/screenshots/` with timestamp |
 | 📋 CSV Log | All detections logged to `alerts/alert_log.csv` |
 | 🎨 Premium UI | Gradio Blocks with dark agri-green glassmorphism theme |
-| ⚡ Ultra-Low Latency | WebRTC P2P streaming (~100-200ms) |
+| ⚡ Ultra-Low Latency | Real-time webcam streaming |
 | 🤗 HuggingFace Ready | Deploys to Spaces with zero changes |
 | 🎪 Multi-Modal Alerts | Popup + Banner + Alarm sound + Tamil voice |
 
@@ -110,12 +110,12 @@ Upload a JPG/PNG image of your farm field for instant detection.
 ### 2. 📹 Live Webcam
 Stream directly from your webcam with real-time bounding boxes and alerts.
 
-### 3. ⚡ WebRTC Stream (Ultra-Low Latency)
-Peer-to-peer video streaming with minimal latency (~100-200ms):
-- **Faster than HTTP** – P2P connection
-- **Real-time detection** – Frame-by-frame analysis
-- **Adjustable threshold** – Confidence slider
-- **Perfect for 24/7 monitoring** – Optimal for farm surveillance
+### 3. 📹 Live Webcam Stream
+Native Gradio webcam streaming for real-time detections:
+- **No extra WebRTC dependency** – works with Gradio 6.19
+- **Real-time detection** – frame-by-frame analysis
+- **Adjustable threshold** – confidence slider
+- **Perfect for 24/7 monitoring** – ideal for farm surveillance
 
 ---
 
@@ -190,8 +190,8 @@ All annotated images are saved with bounding boxes to `alerts/screenshots/`
 
 ## ❓ Troubleshooting
 
-### Issue: WebRTC not working
-- Ensure `fastrtc` is installed: `pip install fastrtc>=0.0.20`
+### Issue: Live webcam not working
+- Ensure Gradio 6.19 is installed: `pip install gradio==6.19.0`
 - Check browser compatibility (Chrome/Edge recommended)
 - Ensure your camera permissions are granted
 
@@ -236,9 +236,8 @@ All annotated images are saved with bounding boxes to `alerts/screenshots/`
 - **OpenCV** – Image processing & bounding boxes
 
 ### Web UI & Streaming
-- **Gradio 4.44+** – Interactive web interface
+- **Gradio 6.19.0** – Interactive web interface
 - **Pillow** – Image handling
-- **FastRTC** – WebRTC peer-to-peer streaming
 - **Gradio Blocks** – Custom component layout
 
 ### Audio & Alerts
@@ -257,12 +256,11 @@ All dependencies are in `pyproject.toml`:
 
 ```toml
 dependencies = [
-    "gradio>=4.44.0",
+    "gradio==6.19.0",
     "onnxruntime>=1.18.0",
     "opencv-python-headless>=4.9.0",
     "numpy>=1.26.0",
     "ultralytics>=8.0.0",
-    "fastrtc>=0.0.20",      # WebRTC streaming
     "gtts>=2.4.0",          # Tamil voice alerts
     "pygame>=2.5.0",        # Audio playback
 ]

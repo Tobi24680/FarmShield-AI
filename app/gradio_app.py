@@ -1,6 +1,5 @@
 import gradio as gr
-from app.onnx_predict import predict_image, predict_webrtc_stream
-from fastrtc import WebRTC
+from app.onnx_predict import predict_image, predict_webcam_frame
 from app.config import CONF_THRESHOLD
 
 
@@ -753,9 +752,22 @@ body::after {
 .gradio-container .prose a { color: var(--green) !important; }
 label, .label-wrap { color: var(--muted) !important; }
 
-/* ── WebRTC specific ───────────────────────────────────── */
+/* ── Live webcam layout helpers ───────────────────────── */
 .my-group {max-width: 900px !important; margin: 0 auto !important;}
 .my-column {display: flex !important; flex-direction: column; justify-content: center !important; align-items: center !important; text-align: center;}
+
+/* ── Hidden audio player for Tamil voice alerts ──────── */
+/* Must remain in DOM (not display:none) for browser autoplay to work */
+#voice-alert {
+    position: fixed !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
 """
 
 #  HTML TEMPLATES
@@ -905,9 +917,27 @@ STATS_HTML = """
 
 
 def build_app() -> gr.Blocks:
+    # JavaScript to force-play Tamil voice alerts in the browser
+    VOICE_ALERT_JS = """
+    () => {
+        function setupVoiceAlert() {
+            const el = document.querySelector('#voice-alert');
+            if (!el) { setTimeout(setupVoiceAlert, 500); return; }
+            new MutationObserver(() => {
+                const audio = el.querySelector('audio');
+                if (audio && audio.src && audio.paused) {
+                    audio.play().catch(() => {});
+                }
+            }).observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+        }
+        setupVoiceAlert();
+    }
+    """
+
     with gr.Blocks(
         title="FarmShield AI — Wildlife Intrusion Detection & Alert System",
         css=CUSTOM_CSS,
+        js=VOICE_ALERT_JS,
     ) as demo:
 
         # ── Overlays ──
@@ -957,10 +987,17 @@ def build_app() -> gr.Blocks:
                     with gr.Tab("📹 Live Webcam"):
                         with gr.Row():
                             with gr.Column(scale=6, elem_classes=["fs-card", "my-column"]):
-                                gr.HTML('<div class="section-label" style="justify-content: center;">📷 Live WebRTC Feed</div>')
-                                gr.HTML('<div style="color: #4ade80; font-size: 0.9rem; margin-bottom: 12px; text-align: center;">🚀 Ultra-fast peer-to-peer video streaming with real-time AI detection</div>')
+                                gr.HTML('<div class="section-label" style="justify-content: center;">📷 Live Webcam Feed</div>')
+                                gr.HTML('<div style="color: #4ade80; font-size: 0.9rem; margin-bottom: 12px; text-align: center;">🚀 Native Gradio webcam streaming with real-time AI detection</div>')
                                 with gr.Group(elem_classes=["my-group"]):
-                                    webcam_input = WebRTC(label="Live Webcam", rtc_configuration={}, mode="send-receive")
+                                    webcam_input = gr.Image(
+                                        label="Live Webcam",
+                                        sources=["webcam"],
+                                        type="numpy",
+                                        streaming=True,
+                                        height=370,
+                                        elem_classes=["gradio-image"],
+                                    )
                                     conf_threshold_webrtc = gr.Slider(
                                         label="Confidence Threshold",
                                         minimum=0.0,
@@ -1004,6 +1041,10 @@ def build_app() -> gr.Blocks:
             with gr.Tab("📞 Contact & About"):
                 gr.HTML(CREATOR_HTML)
 
+        # ── Hidden audio component for browser-side Tamil voice alerts ──
+        # Uses CSS hiding (not visible=False) so the <audio> element stays in DOM for autoplay
+        voice_output = gr.Audio(autoplay=True, elem_id="voice-alert")
+
         # ── Footer ──
         gr.HTML(FOOTER_HTML)
 
@@ -1012,16 +1053,16 @@ def build_app() -> gr.Blocks:
         detect_btn.click(
             fn=predict_image,
             inputs=[image_input],
-            outputs=[image_output, alert_output],
+            outputs=[image_output, alert_output, voice_output],
             api_name="detect",
         )
 
-        # WebRTC → real-time ultra-low latency detection
+        # Live webcam → real-time detection
         webcam_input.stream(
-            fn=predict_webrtc_stream,
+            fn=predict_webcam_frame,
             inputs=[webcam_input, conf_threshold_webrtc],
-            outputs=[webcam_input, alert_output],
-            time_limit=10
+            outputs=[webcam_input, alert_output, voice_output],
+            time_limit=10,
         )
 
 

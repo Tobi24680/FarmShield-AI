@@ -1,27 +1,25 @@
 import cv2
 from ultralytics import YOLO
 import gradio as gr
-import threading
 import tempfile
 from app.config import MODEL_PATH, CONF_THRESHOLD
 from app.alert_manager import save_alert, save_alert_live
 
-# Import gTTS and pygame for Tamil voice alerts
+# Import gTTS for Tamil voice alerts (audio is played client-side via gr.Audio)
 try:
     from gtts import gTTS
-    import pygame
-    pygame.mixer.init()
     AUDIO_AVAILABLE = True
-except ImportError:
+except Exception:
     AUDIO_AVAILABLE = False
 
 
 model = YOLO(str(MODEL_PATH), task="detect")
 
 def generate_tamil_audio(animal_list):
-    
+    """Generate a Tamil voice alert MP3 and return the file path."""
+
     if not AUDIO_AVAILABLE:
-        print("⚠️ Audio system not available (gTTS/pygame not installed)")
+        print("⚠️ Audio system not available (gTTS not installed)")
         return None
 
     if isinstance(animal_list, list):
@@ -66,9 +64,12 @@ def generate_tamil_audio(animal_list):
 
 
 def predict_image(image, conf_threshold=None):
-  
+    """Run detection on an uploaded image.
+    Returns: (annotated_image, alert_text, audio_filepath_or_None)
+    """
+
     if image is None:
-        return None, ""
+        return None, "", None
 
     if conf_threshold is None:
         conf_threshold = CONF_THRESHOLD
@@ -85,10 +86,13 @@ def predict_image(image, conf_threshold=None):
 
     annotated = results[0].plot()
 
+    audio_file = None
+
     if names:
         unique_animals = ", ".join(set(names))
         gr.Warning(f"🚨 Wildlife Alert! {unique_animals} detected in your farm field. Stay away and remain safe.")
-        threading.Thread(target=play_tamil_alert, args=(unique_animals,), daemon=True).start()
+        # Generate Tamil voice alert MP3 (will be played client-side)
+        audio_file = generate_tamil_audio(unique_animals)
         alert = save_alert(annotated, names, confidences)
     else:
         gr.Info("✅ Safe: No wildlife detected.")
@@ -98,33 +102,21 @@ def predict_image(image, conf_threshold=None):
             "Your farm area appears safe.\n"
             "No animals (Bear, Boar, Elephant) were found in this image."
         )
-        threading.Thread(target=play_tamil_alert, args=("safe",), daemon=True).start()
+        # Generate Tamil "safe" voice alert MP3 (will be played client-side)
+        audio_file = generate_tamil_audio("safe")
 
     annotated = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
 
-    return annotated, alert
-
-
-def play_tamil_alert(animal_list):
-    """Play Tamil voice alert using pygame (for webcam background thread)."""
-    if not AUDIO_AVAILABLE:
-        return
-    try:
-        audio_file = generate_tamil_audio(animal_list)
-        if audio_file:
-            pygame.mixer.music.load(audio_file)
-            pygame.mixer.music.play()
-            # Wait for playback to finish
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-    except Exception as e:
-        print(f"❌ Audio playback error: {e}")
+    return annotated, alert, audio_file
 
 
 def predict_webcam_frame(frame, conf_threshold=None):
-    
+    """Run detection on a live webcam frame.
+    Returns: (annotated_frame, alert_text, audio_filepath_or_None)
+    """
+
     if frame is None:
-        return None, ""
+        return None, "", None
 
     if conf_threshold is None:
         conf_threshold = CONF_THRESHOLD
@@ -142,15 +134,13 @@ def predict_webcam_frame(frame, conf_threshold=None):
     annotated = results[0].plot()
 
     alert = save_alert_live(annotated, names, confidences)
-    
+
+    audio_file = None
+
     if names and alert.startswith("⚠️ ALERT TRIGGERED"):
         unique_animals = ", ".join(set(names))
-        # Play Tamil voice alert in background thread
-        threading.Thread(
-            target=play_tamil_alert,
-            args=(unique_animals,),
-            daemon=True
-        ).start()
+        # Generate Tamil voice alert MP3 (will be played client-side)
+        audio_file = generate_tamil_audio(unique_animals)
     elif not names and alert.startswith("✅"):
         # If cooldown for safe message is implemented, it would go here.
         # For live stream, spamming "safe" every frame is bad, so we only play it if state changed from danger to safe.
@@ -158,49 +148,8 @@ def predict_webcam_frame(frame, conf_threshold=None):
 
     annotated = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
 
-    return annotated, alert
+    return annotated, alert, audio_file
 
 
 def predict_webrtc_stream(frame, conf_threshold=None):
-    
-    if frame is None:
-        return frame
-
-    # fastrtc sometimes passes (image, audio) tuple
-    if isinstance(frame, tuple):
-        frame = frame[0]
-
-    if conf_threshold is None:
-        conf_threshold = CONF_THRESHOLD
-
-    # Run detection
-    results = model.predict(frame, conf=conf_threshold, verbose=False)
-    
-    names = []
-    confidences = []
-    for box in results[0].boxes:
-        cls = int(box.cls[0])
-        conf = float(box.conf[0])
-        names.append(model.names[cls])
-        confidences.append(conf)
-
-    # Plot bounding boxes and labels
-    annotated = results[0].plot()
-    
-    alert_msg = gr.skip()
-
-    if names:
-        # Try to trigger alert respecting cooldown timer
-        live_alert = save_alert_live(annotated, names, confidences)
-        # Trigger audio and popup only on first detection (when alert is triggered)
-        if live_alert.startswith("⚠️ ALERT TRIGGERED"):
-            unique_animals = ", ".join(set(names))
-            gr.Warning(f"🚨 WebRTC: {unique_animals} detected! Stay away!")
-            threading.Thread(target=play_tamil_alert, args=(unique_animals,), daemon=True).start()
-            alert_msg = live_alert
-    else:
-        # For webrtc, to avoid audio spam, we don't play safe on every frame.
-        pass
-
-    annotated = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
-    return annotated, alert_msg
+    return predict_webcam_frame(frame, conf_threshold)
